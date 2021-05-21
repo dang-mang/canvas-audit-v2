@@ -1,6 +1,9 @@
 input/
+data/
+old/
 __pycache__/
 input.json
 config.py
+*.pyc
 *.csv
 *.json
