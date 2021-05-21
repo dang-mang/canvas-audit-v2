@@ -2,26 +2,19 @@ import pandas as pd
 import glob
 import os
 
-def merge_csv():
-    # making data frame from csv file
-      
-    # changing index cols with rename()
-    csv_files=["source.csv", "admins.csv"]
-
-    #get data from source
-    data = pd.read_csv("source.csv", header=0)
-    sys_IDs = list(data['canvas_user_id'].to_list())
-    num_users = len(sys_IDs) 
+def merge_csv(source_filename = 'source.csv', output_filename = 'output.csv', directory = 'data/'):
+    #change CSV to pandas dataframe
+    df_source = pd.read_csv(directory + source_filename, header=0)
+    df_output = pd.read_csv(directory + output_filename, header=0)
     
-    combined
-    df = pd.DataFrame().reindex_like(combined_csv)
-    for x in sys_IDs:
-        z = combined_csv.loc[combined_csv['l_id']==x]
-        for row in z:
-            df.loc[len(df.index)] = row
-        print(f"row {df.index} finished")
-    print(df)
+    #rename 
+    df_renamed = df_output.rename(columns = {'l_id':'canvas_user_id'})
 
+    #merge dataframes
+    df_merged = df_renamed.merge(df_source, how='left', on='canvas_user_id')
+
+    #dataframe to CSV 
+    df_merged.to_csv(directory + 'merged.csv', index=False, header=True)
 def main():
     merge_csv()
 

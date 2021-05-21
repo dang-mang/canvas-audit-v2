@@ -3,12 +3,16 @@ import subprocess
 import pandas
 from config import *
 from fix_json import *
+from merge_csv import *
+
 directory = "data/"
 input_filename = directory + "input.json"
 output_filename = directory + "output.csv"
+
 def get_command(sys_id):
     #generate command with sys id
     return f"curl -H \"Authorization: Bearer {token}\" \"{URL[0]}{sys_id}{URL[1]}\" >> {input_filename}"
+
 def get_IDs(): 
     #get data from source
     data = pandas.read_csv(directory + "source.csv", header=0)
@@ -34,10 +38,23 @@ def write_to_file(sys_IDs):
 
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {output_filename}")
 
+def clean_files():
+    paths = [directory + "input.json", directory + "output.csv"]
+    
+    for p in paths:
+        os.remove(p)
+
 def main():
     sys_IDs = get_IDs()
     write_to_file(sys_IDs)
+    print("Fixing JSON and converting to CSV...")
     fix_json(input_filename)
+    print("CSV file created.\nMerging source file and output file...")
+    merge_csv()
+    print("CSV file merged.")
+    
+    clean_files()
+
 if __name__ == "__main__":
     # execute only if run as a script
     main()
