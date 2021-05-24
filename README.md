@@ -7,7 +7,7 @@ This is a piece of software that gets all user information from the Canvas API a
 2) Fill out a file in the directory named "config.py" using the "config_template.py" as a template. You will need your Canvas API key and target URL.
 3) Make sure that you have the source document from the Canvas API. It is the one with the first 2 columns as "admin_user_name" and	"canvas_user_id". This file must have the directory path ./data/source.csv
 5) Run "python3 get_admins.py" 
-6) Once that is finished, run "python3 json_to_csv_original.py l input.json admins.csv". If this doesn't work, you may have to validate and fix the JSON with an online tool.
+~~6) Once that is finished, run "python3 json_to_csv_original.py l input.json admins.csv". If this doesn't work, you may have to validate and fix the JSON with an online tool.~~ This step shouldn't be necessary.
 
 ## Future plans
 1) ~~Auto formatting for JSON. It's a big sample size, so sometimes if there is an error in the API, in the download, or something else, then you need to auto format it to prevent bugs.~~ JSON auto formats in most instances. There are still some bugs that are mostly created by issues with the API (5/14/2021)
