@@ -1,10 +1,10 @@
 import os
 import subprocess
-import pandas
+import pandas as pd
 from config import *
 from fix_json import *
 from merge_csv import *
-
+from concat_IDs import *
 directory = "data/"
 input_filename = directory + "input.json"
 output_filename = directory + "output.csv"
@@ -15,7 +15,7 @@ def get_command(sys_id):
 
 def get_IDs(): 
     #get data from source
-    data = pandas.read_csv(directory + "source.csv", header=0)
+    data = pd.read_csv(directory + "source.csv", header=0)
     sys_IDs = list(data['canvas_user_id'].to_list())
     num_users = len(sys_IDs) 
     print(f"Found {num_users} users in source.csv.\nPreparing to download data from {URL[0]}")
@@ -24,7 +24,7 @@ def get_IDs():
 def write_to_file(sys_IDs):
     if not os.path.exists(directory):
         os.makedirs(directory)
-    
+
     os.system(f"echo \"[\" >> {input_filename}")
     num_users = len(sys_IDs) 
     for n in sys_IDs:
@@ -51,8 +51,9 @@ def main():
     fix_json(input_filename)
     print("CSV file created.\nMerging source file and output file...")
     merge_csv()
-    print("CSV file merged.")
-    
+    print("CSV file merged.\nFetching IDs from API...")
+    concat_IDs() 
+
     clean_files()
 
 if __name__ == "__main__":
