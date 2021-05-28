@@ -4,7 +4,7 @@ def fix_json(input_filename, directory = "data/", output_filename = "output.csv"
     output_path = directory + output_filename
 
     with open(input_filename) as f:
-        newText=f.read().replace('}{', '},\n{').replace("]\n[",",")
+        newText=f.read().replace('}{', '},\n{').replace("]\n[",",").replace(",\n]","\n]")
     with open(input_filename, "w") as f:
         f.write(newText)
     

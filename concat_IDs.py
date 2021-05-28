@@ -5,6 +5,7 @@ from fix_json import *
 from config import *
 directory = "data/"
 ID_path = directory + "id.json"
+clean_path = directory + "id_clean.json"
 
 def get_usernames(): 
     #get data from source
@@ -20,8 +21,6 @@ def get_usernames():
     for u in no_dupes:
         usernames.append(str(u).split('@')[0])
     
-    for u in usernames:
-        print(u)
 
     num_users = len(usernames) 
     print(f"Found {num_users} usernames in merged.csv.\nPreparing to download data from {URL_ID}")
@@ -42,29 +41,28 @@ def write_user(usernames):
     for idx, u in enumerate(usernames):
         os.system(get_command_id(u))
         #if u != usernames[-1]:
-        if idx+1 == num_users:
+        if idx+1 != num_users:
             os.system(f"echo \",\" >> {ID_path}")    
         percent = (idx+1)/num_users * 100 
         print(f"Download progress - {round(percent,2)}% ({idx+1}/{num_users})")
-    os.system(f"echo \"]\" >> {ID_path}")
+    os.system(f"echo \"\\n]\" >> {ID_path}")
     input_string = ID_path.split("/")[1]
     print("Download complete.")
 
-def read_lines():
+def read_lines(json_filename):
     phrase = "The specified resource does not exist."
-    for line in fileinput.input(ID_path, inplace=True):
-        if phrase in line:
-            continue
-        print(line, end='')
-    
-
+    #for line in fileinput.input(ID_path, inplace=True):
+    with open(json_filename) as oldfile, open(clean_path, 'w') as newfile:
+        for line in oldfile:
+            if not phrase in line:
+                newfile.write(line)
     
 def concat_IDs():
     usernames = get_usernames()
     write_user(usernames)
-    read_lines()
+    read_lines(ID_path)
     print("Generating CSV file.")
-    fix_json(ID_path, output_filename = "id.csv")
+    fix_json(clean_path, output_filename = "id.csv")
 
 def main():
     concat_IDs()
@@ -72,3 +70,4 @@ def main():
 if __name__ == "__main__":
     # execute only if run as a script
     main()
+
