@@ -39,7 +39,7 @@ def write_to_file(sys_IDs):
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {output_filename}")
 
 def clean_files():
-    keep = "admins_final.csv"
+    keep = "source.csv"
     
     for filename in os.listdir(directory):
         if filename != keep:
@@ -57,7 +57,7 @@ def main():
     print("IDs fetched from API.\nMerging final CSV file...")
     merge_csv(source_filename = 'id.csv', output_filename = 'merged.csv', final = 'admins_final.csv', first = 'l_email' ,last = 'l_email')
     print("Final CSV file successfully generated. Cleaning files...")
-    clean_files()
+    #clean_files()
     print("Process complete.")
 
 if __name__ == "__main__":
