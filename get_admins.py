@@ -49,7 +49,7 @@ def main():
     sys_IDs = get_IDs()
     write_to_file(sys_IDs)
     print("Fixing JSON and converting to CSV...")
-    fix_json(input_filename)
+    fix_json()
     print("CSV file created.\nMerging source file and output file...")
     #merge_csv()
     #print("CSV file merged.\nFetching IDs from API...")

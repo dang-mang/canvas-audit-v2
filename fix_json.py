@@ -1,29 +1,33 @@
 import os
 import sys
-def fix_json(input_filename, directory = "data/", output_filename = "output.csv"):
+import fileinput
+
+def fix_json(input_filename='input.json', directory = "data/", output_filename = "output.csv"):
     output_path = directory + output_filename
-    remove_empty_lines(input_filename)
-    with open(input_filename) as f:
+    input_path = directory + input_filename
+    clean_path = directory + 'input_clean.json'
+    remove_empty_lines(input_path, clean_path)
+    with open(clean_path) as f:
         #newText=f.read().replace('}{', '},\n{').replace("]\n[",",").replace(",\n]","\n]")
         newText=f.read().replace('[', '').replace("]","").replace('}\n{','},\n{').replace('}{', '},\n{').replace(',\n,',',\n')
+        newText= newText.replace('[', '').replace("]","")
         newText= "[{0}]".format(newText)
-
-    with open(input_filename, "w") as f:
+        
+    with open(input_path, "w") as f:
         f.write(newText)
     
-    os.system(f"python3 json_to_csv.py l {input_filename} {output_path}")
+    os.system(f"python3 json_to_csv.py l {input_path} {output_path}")
 
-def remove_empty_lines(filename):
-    """Overwrite the file, removing empty lines and lines that contain only whitespace."""
-    with open(filename, 'r+') as f:
-        lines = f.readlines()
-        f.seek(0)
-        f.writelines(line for line in lines if line.strip())
-        f.truncate()
+def remove_empty_lines(input_path, clean_path):
+    char = '{'
+    newfile = open(clean_path, 'w')
+    for line in open(input_path, 'r'):
+        if char in line:
+            newfile.write(line)
+    newfile.close()
 
 def main():
-    print(sys.argv[1])
-    fix_json(sys.argv[1])
+    fix_json()
 
 if __name__ == "__main__":
     # execute only if run as a script
