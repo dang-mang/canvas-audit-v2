@@ -8,8 +8,9 @@ ID_path = directory + "id.json"
 clean_path = directory + "id_clean.json"
 
 def get_usernames(): 
+    input_path = directory+'input.csv'
     #get data from source
-    data = pd.read_csv(directory + "merged.csv", header=0)
+    data = pd.read_csv(input_path, header=0)
     usernames = list(data['l_email'].to_list())
     
     no_dupes = []
@@ -23,13 +24,13 @@ def get_usernames():
     
 
     num_users = len(usernames) 
-    print(f"Found {num_users} usernames in merged.csv.\nPreparing to download data from {URL_ID}")
+    print(f"Found {num_users} usernames in {input_path}.\nPreparing to download data from {URL_LOGIN}")
     return usernames 
     
 
 def get_command_id(username):
     #generate command with sys id
-    return f"curl -H \"Authorization: Bearer {token}\" \"{URL_ID}{username}\" >> {ID_path}"
+    return f"curl -H \"Authorization: Bearer {token}\" \"{URL_LOGIN}{username}\" >> {ID_path}"
 
 def write_user(usernames):
     num_users = len(usernames)
