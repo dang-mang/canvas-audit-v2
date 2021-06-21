@@ -57,9 +57,9 @@ def main():
     print("CSV file created.")
     
     #merge source and generated
-    #print("Merging source file and output file...")
-    #merge_csv()
-    #print("CSV file merged.")
+    print("Merging source file and output file...")
+    merge_csv()
+    print("CSV file merged.")
     
     #get i-numbers from API
     print("Fetching IDs from API...")
