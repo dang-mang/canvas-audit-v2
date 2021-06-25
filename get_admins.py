@@ -1,6 +1,7 @@
 import os
 import subprocess
 import pandas as pd
+import csv
 from config import *
 from pathlib import Path
 from fix_json import *
@@ -37,6 +38,36 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
 
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {csv}")
 
+def collapse_csv(destination = directory, filename = "output.csv"):
+    with open(destination + filename, newline='') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+    length = len(data) 
+    #put data in their own row
+    print("Processing data...")
+    for i, value in enumerate(data):
+        if i != 0 and len(value) > 9: 
+            if value[9] != '':
+                data.insert(i,value[9:17])
+            if value[18] != '':
+                data.insert(i,value[18:26])
+            if(i >= length):
+                break
+    
+    #remove empties
+    for i,x in enumerate(data):
+        for z in x:
+            if z == '':
+                x.remove(z)
+        data[i] = data[i][0:9]
+    #data[0] = data[0][0:9]
+
+    with open(directory+'collapsed.csv', 'w') as f:
+        # using csv.writer method from CSV package
+        write = csv.writer(f)
+        write.writerows(data)   
+    print("Data processing complete.")
+    
 def clean_files(path):  
     for f in os.listdir(path):
         os.remove(os.path.join(path, f))
@@ -50,17 +81,20 @@ def main():
     os.makedirs(first, exist_ok=True)
     clean_files(first)
 
+
     #first API call for IDs
     write_to_file(URL, sys_IDs, destination = first)
     print("Fixing JSON and converting to CSV...")
     fix_json()
     print("CSV file created.")
-    
+
+    collapse_csv() 
+ 
     #merge source and generated
     print("Merging source file and output file...")
-    merge_csv()
+    merge_csv(output_filename = "collapsed.csv")
     print("CSV file merged.")
-    
+   
     #get i-numbers from API
     print("Fetching IDs from API...")
     login_in = "logins.json"
@@ -68,6 +102,8 @@ def main():
     write_to_file(URL_LOGIN, sys_IDs, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
+   
+    #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
 
     #print("Merging final CSV file...")
     #fix_csv()
