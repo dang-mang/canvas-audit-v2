@@ -16,12 +16,35 @@ def get_command(URL_to_use, sys_id,out = input_filename):
     return f"curl -H \"Authorization: Bearer {token}\" \"{URL_to_use[0]}{sys_id}{URL_to_use[1]}\" >> {out}"
 
 def get_IDs(): 
+        #get data from source
+        data = pd.read_csv("source.csv", header=0)
+        sys_IDs = list(data['canvas_user_id'].to_list())
+        num_users = len(sys_IDs) 
+        print(f"Found {num_users} users in source.csv.\nPreparing to download data from {URL[0]}")
+        return sys_IDs
+
+def get_usernames(input_filename = "merged.csv"):
     #get data from source
-    data = pd.read_csv("source.csv", header=0)
-    sys_IDs = list(data['canvas_user_id'].to_list())
-    num_users = len(sys_IDs) 
-    print(f"Found {num_users} users in source.csv.\nPreparing to download data from {URL[0]}")
-    return sys_IDs
+    data = pd.read_csv(directory + input_filename, header=0)
+    usernames = list(data['l_0_sis_user_id'].to_list())
+    num_users = len(usernames) 
+    print(f"Found {num_users} users in {input_filename}.\nPreparing to download data from {URL_LOGIN[0]}")
+    
+    #remove underscores
+    clean = []
+    for u in usernames:
+        clean.append(str(u))
+    
+    usernames = []
+    clean = [u for u in clean if '_' in u]
+    for u in clean:
+        usernames.append(u.split('_')[1])
+    
+    clean = []
+    for u in usernames:
+        if u not in clean:
+            clean.append(u)
+    return clean
 
 def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filename, destination = directory):
     inp = destination + inp
@@ -95,11 +118,15 @@ def main():
     merge_csv(output_filename = "collapsed.csv")
     print("CSV file merged.")
    
+    usernames = get_usernames()
+    print(usernames)
+    
+
     #get i-numbers from API
     print("Fetching IDs from API...")
     login_in = "logins.json"
     login_out = "logins.csv"
-    write_to_file(URL_LOGIN, sys_IDs, inp = login_in, destination = first, csv = login_out)
+    write_to_file(URL_LOGIN, usernames, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
    
