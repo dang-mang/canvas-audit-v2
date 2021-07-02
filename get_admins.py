@@ -1,4 +1,3 @@
-import os
 import subprocess
 import pandas as pd
 import csv
@@ -16,12 +15,12 @@ def get_command(URL_to_use, sys_id,out = input_filename):
     return f"curl -H \"Authorization: Bearer {token}\" \"{URL_to_use[0]}{sys_id}{URL_to_use[1]}\" >> {out}"
 
 def get_IDs(): 
-        #get data from source
-        data = pd.read_csv("source.csv", header=0)
-        sys_IDs = list(data['canvas_user_id'].to_list())
-        num_users = len(sys_IDs) 
-        print(f"Found {num_users} users in source.csv.\nPreparing to download data from {URL[0]}")
-        return sys_IDs
+    #get data from source
+    data = pd.read_csv("source.csv", header=0)
+    sys_IDs = list(data['canvas_user_id'].to_list())
+    num_users = len(sys_IDs) 
+    print(f"Found {num_users} users in source.csv.\nPreparing to download data from {URL[0]}")
+    return sys_IDs
 
 def get_usernames(input_filename = "merged.csv"):
     #get data from source
@@ -60,6 +59,48 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
     input_string = inp.split("/")[1]
 
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {csv}")
+
+def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
+    #df1 is 'l_0'
+    df1 = pd.read_csv(directory + file1, header=0)
+    #df2 is just 'l_'
+    df2 = pd.read_csv(directory + file2, header=0)
+    
+    #print(df1)
+    count = 0
+    length = df1.shape[0]
+    for i1, row1 in df1.iterrows():
+        for i2, row2 in df2.iterrows(): 
+            #print(i1 / length * 100, '%')
+            login_id = row2['l_login_id']
+            sis_id = row1['l_0_sis_user_id']
+            if str(login_id) in str(sis_id) and 'nan' != str(login_id):
+                print(f"{count+1}:{login_id} is in {sis_id}.")    
+                df2.at[i2, 'l_login_id'] = str(row1['l_0_sis_user_id'])
+                df1.at[i1, 'l_0_sis_user_id'] = str(row1['l_0_sis_user_id'])
+                count += 1
+    print(count)
+
+    count = 0
+    length = df1.shape[0]
+    for i1, row1 in df1.iterrows():
+        for i2, row2 in df2.iterrows(): 
+            #print(i1 / length * 100, '%')
+            login_id = row2['l_login_id']
+            sis_id = row1['l_0_sis_user_id']
+            if str(login_id) == str(sis_id) and 'nan' != str(login_id):
+                print(f"{count+1}:{login_id} == {sis_id}.")    
+                count += 1
+    print(count)
+
+    df_renamed = df1.rename(columns = {'l_0_sis_user_id':'l_login_id'})
+
+    #merge dataframes
+    df_merged = df_renamed.merge(df2, how='left', on='l_login_id')
+
+    #dataframe to CSV 
+    df_merged.to_csv(directory+'with_ids.csv', index=False, header=True)
+
 
 def collapse_csv(destination = directory, filename = "output.csv"):
     with open(destination + filename, newline='') as f:
@@ -129,7 +170,9 @@ def main():
     write_to_file(URL_LOGIN, usernames, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
-   
+    
+    merge_IDs()
+
     #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
 
     #print("Merging final CSV file...")
