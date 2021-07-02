@@ -81,7 +81,7 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
                 df1.at[i1, 'l_0_sis_user_id'] = str(row1['l_0_sis_user_id'])
                 count += 1
     print(f"{count} student accounts with matching admin accounts found.")
-    print("Generating .csv file..."
+    print("Generating .csv file...")
 
     count = 0
     length = df1.shape[0]
