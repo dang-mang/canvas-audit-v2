@@ -61,6 +61,7 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {csv}")
 
 def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
+    print("Processing student accounts")
     #df1 is 'l_0'
     df1 = pd.read_csv(directory + file1, header=0)
     #df2 is just 'l_'
@@ -75,11 +76,12 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
             login_id = row2['l_login_id']
             sis_id = row1['l_0_sis_user_id']
             if str(login_id) in str(sis_id) and 'nan' != str(login_id):
-                print(f"{count+1}:{login_id} is in {sis_id}.")    
+                #print(f"{count+1}:{login_id} is in {sis_id}.")    
                 df2.at[i2, 'l_login_id'] = str(row1['l_0_sis_user_id'])
                 df1.at[i1, 'l_0_sis_user_id'] = str(row1['l_0_sis_user_id'])
                 count += 1
-    print(count)
+    print(f"{count} student accounts with matching admin accounts found.")
+    print("Generating .csv file..."
 
     count = 0
     length = df1.shape[0]
@@ -89,9 +91,8 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
             login_id = row2['l_login_id']
             sis_id = row1['l_0_sis_user_id']
             if str(login_id) == str(sis_id) and 'nan' != str(login_id):
-                print(f"{count+1}:{login_id} == {sis_id}.")    
+                #print(f"{count+1}:{login_id} == {sis_id}.")    
                 count += 1
-    print(count)
 
     df_renamed = df1.rename(columns = {'l_0_sis_user_id':'l_login_id'})
 
@@ -100,6 +101,7 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
 
     #dataframe to CSV 
     df_merged.to_csv(directory+'with_ids.csv', index=False, header=True)
+    print(f".csv file creatd with {count} student and admin accounts merged")
 
 def clean_csv(input_filename = 'with_ids.csv'):
     #put code to rename the columns of the file to make them readable for the end user
@@ -175,7 +177,11 @@ def main():
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
     
+    print("Merging student account information with their admin accounts...")
     merge_IDs()
+    print("Student account merge complete.")
+    print("Cleaning up final csv file (not implemented yet")
+    clean_csv()
 
     #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
 
