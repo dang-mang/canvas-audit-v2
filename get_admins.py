@@ -101,6 +101,10 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
     #dataframe to CSV 
     df_merged.to_csv(directory+'with_ids.csv', index=False, header=True)
 
+def clean_csv(input_filename = 'with_ids.csv'):
+    #put code to rename the columns of the file to make them readable for the end user
+    #create a new file and put it in the main directory, not the data/ directory
+    pass
 
 def collapse_csv(destination = directory, filename = "output.csv"):
     with open(destination + filename, newline='') as f:
