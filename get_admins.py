@@ -106,7 +106,16 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
 def clean_csv(input_filename = 'with_ids.csv'):
     #put code to rename the columns of the file to make them readable for the end user
     #create a new file and put it in the main directory, not the data/ directory
-    pass
+    final_filename = "admins_final.csv"
+    with open(directory + input_filename, 'r') as fin:
+        data = fin.read().splitlines(True)
+
+    f1 = open(final_filename, 'w')
+
+    f1.write("Account Level(?),Authentication Provider ID(?),Account Creation Date,Unique Canvas ID,Extra ID 1(?),Extra ID 1(?),Login Username,Unique Canvas ID(?),?,Full Name,I-Number,Canvas Account Type Number,Account Type,Role ID,Role,Status,Created by (?),Root Domain,Student Avatar URL,Student Account Creation Date,Student Email,Error Report(?),L ID (?),L Integration ID (?),Student Last Login Date,Locale (?),Full Name,Avatar Update Permissions,Name Update Permissions,Limit Parent Web Acces Permissions,Root Account URL,Student Short Name,SIS Import ID,Student I-Number,Student Sortable Name\n")
+    f1.writelines(data[1:])
+    print(f"CSV file cleaned and written as \"{final_filename}\".")
+
 
 def collapse_csv(destination = directory, filename = "output.csv"):
     with open(destination + filename, newline='') as f:
@@ -180,7 +189,7 @@ def main():
     print("Merging student account information with their admin accounts...")
     merge_IDs()
     print("Student account merge complete.")
-    print("Cleaning up final csv file (not implemented yet")
+    print("Cleaning up final csv file...")
     clean_csv()
 
     #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
@@ -195,5 +204,4 @@ def main():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    main()
-
+    main() 
