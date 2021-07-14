@@ -97,7 +97,7 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
     df_renamed = df1.rename(columns = {'l_0_sis_user_id':'l_login_id'})
 
     #merge dataframes
-    df_merged = df_renamed.merge(df2, how='left', on='l_login_id')
+    df_merged = df_renamed.merge(df2, how='left', on='l_login_id').drop_duplicates()
 
     #dataframe to CSV 
     df_merged.to_csv(directory+'with_ids.csv', index=False, header=True)
