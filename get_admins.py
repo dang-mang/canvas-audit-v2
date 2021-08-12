@@ -72,13 +72,16 @@ def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
     length = df1.shape[0]
     for i1, row1 in df1.iterrows():
         for i2, row2 in df2.iterrows(): 
-            #print(i1 / length * 100, '%')
-            login_id = row2['l_login_id']
-            sis_id = row1['l_0_sis_user_id']
+            #print(i1 / length * 100, '%)
+            first = 'l_login_id'
+            last = 'l_0_sis_user_id'
+            login_id = row2[first]
+            sis_id = row1[last]
             if str(login_id) in str(sis_id) and 'nan' != str(login_id):
+                print(login_id, sis_id)
                 #print(f"{count+1}:{login_id} is in {sis_id}.")    
-                df2.at[i2, 'l_login_id'] = str(row1['l_0_sis_user_id'])
-                df1.at[i1, 'l_0_sis_user_id'] = str(row1['l_0_sis_user_id'])
+                df2.at[i2, first] = str(row1[last])
+                df1.at[i1, last] = str(row1[last])
                 count += 1
     print(f"{count} student accounts with matching admin accounts found.")
     print("Generating .csv file...")
@@ -173,10 +176,10 @@ def main():
     print("Merging source file and output file...")
     merge_csv(output_filename = "collapsed.csv")
     print("CSV file merged.")
-   
+  
     usernames = get_usernames()
     print(usernames)
-    
+   
 
     #get i-numbers from API
     print("Fetching IDs from API...")
@@ -185,7 +188,7 @@ def main():
     write_to_file(URL_LOGIN, usernames, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
-    
+   
     print("Merging student account information with their admin accounts...")
     merge_IDs()
     print("Student account merge complete.")
