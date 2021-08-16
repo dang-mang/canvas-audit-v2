@@ -60,7 +60,8 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
 
     print(f"Finished downloading {num_users} rows of user data.\nNow converting {input_string} to {csv}")
 
-def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
+#def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
+def merge_IDs(directory = directory, file1 = 'collapsed.csv' ,file2 ='logins.csv'):
     print("Processing student accounts")
     #df1 is 'l_0'
     df1 = pd.read_csv(directory + file1, header=0)
