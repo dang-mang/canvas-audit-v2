@@ -1,5 +1,6 @@
 import subprocess
 import pandas as pd
+import numpy as np
 import csv
 from config import *
 from pathlib import Path
@@ -110,7 +111,7 @@ def merge_IDs(directory = directory, file1 = 'collapsed.csv' ,file2 ='logins.csv
 def clean_csv(input_filename = 'with_ids.csv'):
     #put code to rename the columns of the file to make them readable for the end user
     #create a new file and put it in the main directory, not the data/ directory
-    final_filename = "admins_final.csv"
+    final_filename = directory + "admins_final.csv"
     with open(directory + input_filename, 'r') as fin:
         data = fin.read().splitlines(True)
 
@@ -151,6 +152,31 @@ def collapse_csv(destination = directory, filename = "output.csv"):
         write.writerows(data)   
     print("Data processing complete.")
     
+def source_merge():
+    df1 = pd.read_csv("source.csv", header=0)
+    df2 = pd.read_csv(directory + "admins_final.csv", header=0)
+    id_string = 'Unique Canvas ID(?)'
+
+    df_renamed = df1.rename(columns = {'canvas_user_id':'Unique Canvas ID(?)'})
+    #remove duplicates from source
+    df_renamed[['Unique Canvas ID(?)']] = df_renamed[['Unique Canvas ID(?)']].fillna(0)
+    df_renamed = df_renamed.drop_duplicates('Unique Canvas ID(?)',keep='first')
+    df2[['Unique Canvas ID(?)']] = df2[['Unique Canvas ID(?)']].fillna(0)
+    
+    df_renamed[id_string] = df_renamed[id_string].astype(str)
+    df2[id_string] = df2[id_string].astype(str)
+
+        
+    #merge dataframes
+    df_merged = df2.merge(df_renamed, how='outer', on=id_string).drop_duplicates()
+    #df_merged = pd.merge(df_renamed,df2,on=id_string)
+    
+    first_column = df_merged.pop('admin_user_name')
+    df_merged.insert(0,'Name',first_column)
+    #dataframe to CSV 
+    df_merged.to_csv('report.csv', index=False, header=True)
+    print("final report created and written as \"report.csv\"")
+
 def clean_files(path):  
     for f in os.listdir(path):
         os.remove(os.path.join(path, f))
@@ -195,7 +221,7 @@ def main():
     print("Student account merge complete.")
     print("Cleaning up final csv file...")
     clean_csv()
-
+    source_merge()
     #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
 
     #print("Merging final CSV file...")
