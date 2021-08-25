@@ -173,6 +173,11 @@ def source_merge():
     
     first_column = df_merged.pop('admin_user_name')
     df_merged.insert(0,'Name',first_column)
+    second_column = df_merged.pop('Student Last Login Date')
+    third_column = df_merged.pop('user_id')
+    
+    df_merged.insert(1,'I-Number (student)',second_column)
+    df_merged.insert(2,'I-Number (employee)',third_column)
     #dataframe to CSV 
     df_merged.to_csv('report.csv', index=False, header=True)
     print("final report created and written as \"report.csv\"")
