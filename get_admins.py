@@ -54,8 +54,8 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
         os.system(get_command(URL_to_use, n, inp))
         if n != sys_IDs[-1]:
             os.system(f"echo \",\" >> {inp}")    
-        percent = sys_IDs.index(n)/num_users * 100 
-        print(f"Download progress - {round(percent,2)}% ({sys_IDs.index(n)}/{num_users})")
+        percent = (sys_IDs.index(n)+1)/num_users * 100 
+        print(f"Download progress - {round(percent,2)}% ({sys_IDs.index(n)+1}/{num_users})")
     os.system(f"echo \"]\" >> {inp}")
     input_string = inp.split("/")[1]
 
@@ -63,7 +63,7 @@ def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filenam
 
 #def merge_IDs(directory = directory, file1 = 'merged.csv' ,file2 ='logins.csv'):
 def merge_IDs(directory = directory, file1 = 'collapsed.csv' ,file2 ='logins.csv'):
-    print("Processing student accounts")
+    print("Processing student accounts...")
     #df1 is 'l_0'
     df1 = pd.read_csv(directory + file1, header=0)
     #df2 is just 'l_'
@@ -80,7 +80,7 @@ def merge_IDs(directory = directory, file1 = 'collapsed.csv' ,file2 ='logins.csv
             login_id = row2[first]
             sis_id = row1[last]
             if str(login_id) in str(sis_id) and 'nan' != str(login_id):
-                print(login_id, sis_id)
+                #print(login_id, sis_id)
                 #print(f"{count+1}:{login_id} is in {sis_id}.")    
                 df2.at[i2, first] = str(row1[last])
                 df1.at[i1, last] = str(row1[last])
@@ -117,7 +117,7 @@ def clean_csv(input_filename = 'with_ids.csv'):
 
     f1 = open(final_filename, 'w')
 
-    f1.write("Account Level(?),Authentication Provider ID(?),Account Creation Date,Unique Canvas ID,Extra ID 1(?),Extra ID 1(?),Login Username,Unique Canvas ID(?),?,Full Name,I-Number,Canvas Account Type Number,Account Type,Role ID,Role,Status,Created by (?),Root Domain,Student Avatar URL,Student Account Creation Date,Student Email,Error Report(?),L ID (?),L Integration ID (?),Student Last Login Date,Locale (?),Full Name,Avatar Update Permissions,Name Update Permissions,Limit Parent Web Acces Permissions,Root Account URL,Student Short Name,SIS Import ID,Student I-Number,Student Sortable Name\n")
+    f1.write("Account Level(?),Authentication Provider ID(?),Account Creation Date,Unique Canvas ID,Extra ID 1(?),Extra ID 1(?),Login Username,Unique Canvas ID(?),?,Full Name,I-Number,Student E-Mail,Account Type,Role ID,Role,Status,Created by (?),Root Domain,Student Avatar URL,Student Account Creation Date,Student Email,Error Report(?),L ID (?),L Integration ID (?),Student Last Login Date,Locale (?),Full Name,Avatar Update Permissions,Name Update Permissions,Limit Parent Web Acces Permissions,Root Account URL,Student Short Name,SIS Import ID,Student I-Number,Student Sortable Name\n")
     f1.writelines(data[1:])
     print(f"CSV file cleaned and written as \"{final_filename}\".")
 
@@ -128,7 +128,7 @@ def collapse_csv(destination = directory, filename = "output.csv"):
         data = list(reader)
     length = len(data) 
     #put data in their own row
-    print("Processing data...")
+    print("Processing data to collapse dataframe...")
     for i, value in enumerate(data):
         if i != 0 and len(value) > 9: 
             if value[9] != '':
@@ -171,13 +171,38 @@ def source_merge():
     df_merged = df2.merge(df_renamed, how='outer', on=id_string).drop_duplicates()
     #df_merged = pd.merge(df_renamed,df2,on=id_string)
     
-    first_column = df_merged.pop('admin_user_name')
-    df_merged.insert(0,'Name',first_column)
-    second_column = df_merged.pop('Student Last Login Date')
-    third_column = df_merged.pop('user_id')
     
-    df_merged.insert(1,'I-Number (student)',second_column)
-    df_merged.insert(2,'I-Number (employee)',third_column)
+    #change column order and names
+    i0_column = df_merged.pop('admin_user_name')
+    i1_column = df_merged.pop('Student Last Login Date')
+    i2_column = df_merged.pop('user_id')
+    i3_column = df_merged.pop('Login Username')
+
+    df_merged.insert(0,'Name',i0_column)
+    df_merged.insert(1,'I-Number (student)',i1_column)
+    df_merged.insert(2,'I-Number (employee)',i2_column)
+    df_merged.insert(3,'Employee Login',i3_column)
+    
+    df_merged = df_merged.rename(columns={"Full Name": "Profile Picture link",
+        "Created by (?)": "Language(?)",
+        "I-Number":"Account Creation Date",
+        "Root Domain":"Student Account Name",
+        "Student Avatar URL":"Update Avatar Permission",
+        "Student Account Creation Date":"Update Name Permission",
+        "Student Email":"Limit Parent Web app Permission",
+        "Error Report(?)":"Root Account URL",
+        "L ID (?)":"Short Name",
+        "L Integration ID (?)":"SIS Import ID",
+        "Locale (?)":"Sortable Name"})
+    df_merged.pop("Full Name.1")
+    df_merged.pop("Avatar Update Permissions")
+    df_merged.pop("Name Update Permissions")
+    df_merged.pop("Limit Parent Web Acces Permissions")
+    df_merged.pop("Root Account URL")
+    df_merged.pop("Student Short Name")
+    df_merged.pop("SIS Import ID")
+    df_merged.pop("Student I-Number")
+    df_merged.pop("Student Sortable Name")
     #dataframe to CSV 
     df_merged.to_csv('report.csv', index=False, header=True)
     print("final report created and written as \"report.csv\"")
@@ -210,7 +235,7 @@ def main():
     print("CSV file merged.")
   
     usernames = get_usernames()
-    print(usernames)
+    #print(usernames)
    
 
     #get i-numbers from API
@@ -220,7 +245,7 @@ def main():
     write_to_file(URL_LOGIN, usernames, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")
-   
+  
     print("Merging student account information with their admin accounts...")
     merge_IDs()
     print("Student account merge complete.")
