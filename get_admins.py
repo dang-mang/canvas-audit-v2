@@ -117,7 +117,7 @@ def clean_csv(input_filename = 'with_ids.csv'):
 
     f1 = open(final_filename, 'w')
 
-    f1.write("Account Level(?),Authentication Provider ID(?),Account Creation Date,Unique Canvas ID,Extra ID 1(?),Extra ID 1(?),Login Username,Unique Canvas ID(?),?,Full Name,I-Number,Student E-Mail,Account Type,Role ID,Role,Status,Created by (?),Root Domain,Student Avatar URL,Student Account Creation Date,Student Email,Error Report(?),L ID (?),L Integration ID (?),Student Last Login Date,Locale (?),Full Name,Avatar Update Permissions,Name Update Permissions,Limit Parent Web Acces Permissions,Root Account URL,Student Short Name,SIS Import ID,Student I-Number,Student Sortable Name\n")
+    f1.write("Account Level(?),Authentication Provider ID(?),Account Creation Date,? Unknown ID 1,Extra ID 1(?),Extra ID 1(?),Login Username,Unique Canvas ID,?,Full Name,I-Number,Student E-Mail,Account Type,Role ID,Role,Status,Created by (?),Root Domain,Student Avatar URL,Student Account Creation Date,Student Email,Error Report(?),L ID (?),L Integration ID (?),Student Last Login Date,Locale (?),Full Name,Avatar Update Permissions,Name Update Permissions,Limit Parent Web Acces Permissions,Root Account URL,Student Short Name,SIS Import ID,Student I-Number,Student Sortable Name\n")
     f1.writelines(data[1:])
     print(f"CSV file cleaned and written as \"{final_filename}\".")
 
@@ -155,13 +155,13 @@ def collapse_csv(destination = directory, filename = "output.csv"):
 def source_merge():
     df1 = pd.read_csv("source.csv", header=0)
     df2 = pd.read_csv(directory + "admins_final.csv", header=0)
-    id_string = 'Unique Canvas ID(?)'
+    id_string = 'Unique Canvas ID'
 
-    df_renamed = df1.rename(columns = {'canvas_user_id':'Unique Canvas ID(?)'})
+    df_renamed = df1.rename(columns = {'canvas_user_id':'Unique Canvas ID'})
     #remove duplicates from source
-    df_renamed[['Unique Canvas ID(?)']] = df_renamed[['Unique Canvas ID(?)']].fillna(0)
-    df_renamed = df_renamed.drop_duplicates('Unique Canvas ID(?)',keep='first')
-    df2[['Unique Canvas ID(?)']] = df2[['Unique Canvas ID(?)']].fillna(0)
+    df_renamed[['Unique Canvas ID']] = df_renamed[['Unique Canvas ID']].fillna(0)
+    df_renamed = df_renamed.drop_duplicates('Unique Canvas ID',keep='first')
+    df2[['Unique Canvas ID']] = df2[['Unique Canvas ID']].fillna(0)
     
     df_renamed[id_string] = df_renamed[id_string].astype(str)
     df2[id_string] = df2[id_string].astype(str)
@@ -193,7 +193,10 @@ def source_merge():
         "Error Report(?)":"Root Account URL",
         "L ID (?)":"Short Name",
         "L Integration ID (?)":"SIS Import ID",
-        "Locale (?)":"Sortable Name"})
+        "Locale (?)":"Sortable Name",
+        "Status":"Last Login Date",
+        "Role ID":"? Unknown ID #2"})
+
     df_merged.pop("Full Name.1")
     df_merged.pop("Avatar Update Permissions")
     df_merged.pop("Name Update Permissions")
@@ -252,15 +255,9 @@ def main():
     print("Cleaning up final csv file...")
     clean_csv()
     source_merge()
-    #merge_csv(source_filename = 'merged.csv', output_filename = 'logins.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'final.csv')
-
-    #print("Merging final CSV file...")
-    #fix_csv()
-
-    #merge_csv(source_filename = 'id.csv', output_filename = 'merged.csv', final = 'admins_final.csv', first = 'l_email' ,last = 'l_email')
-    #print("Final CSV file successfully generated. Cleaning files...")
-    #clean_files()
+    
     print("Process complete.")
+
 
 if __name__ == "__main__":
     # execute only if run as a script

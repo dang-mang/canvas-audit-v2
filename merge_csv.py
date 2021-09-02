@@ -4,8 +4,6 @@ import os
 
 def merge_csv(source_filename = 'source.csv', output_filename = 'output.csv', directory = 'data/',first = 'l_0_id', last = 'canvas_user_id', final = 'merged.csv'):
 
-    print("SNEEEEEEEEEEEE\n\n\n\n\n\n\
-            EEEEED")
     #change CSV to pandas dataframe
     df_source = pd.read_csv(source_filename, header=0).astype(str)
     df_output = pd.read_csv(directory + output_filename, header=0).astype(str)
