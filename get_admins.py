@@ -13,7 +13,10 @@ input_filename = "input.json"
 output_filename = "output.csv"
 
 def get_command(URL_to_use, sys_id,out = input_filename):
-    return f"curl -H \"Authorization: Bearer {token}\" \"{URL_to_use[0]}{sys_id}{URL_to_use[1]}\" >> {out}"
+    command = f"curl -H \"Authorization: Bearer {token}\" \"{URL_to_use[0]}{sys_id}{URL_to_use[1]}\" >> {out}" 
+    print(command)
+    return command 
+
 
 def get_IDs(): 
     #get data from source
@@ -24,10 +27,10 @@ def get_IDs():
     return sys_IDs
 
 def get_usernames(input_filename = "merged.csv"):
-    #get data from source
+    #get data from source                        
     data = pd.read_csv(directory + input_filename, header=0)
     usernames = list(data['l_0_sis_user_id'].to_list())
-    num_users = len(usernames) 
+    num_users = len(usernames)
     print(f"Found {num_users} users in {input_filename}.\nPreparing to download data from {URL_LOGIN[0]}")
     
     #remove underscores
@@ -45,12 +48,45 @@ def get_usernames(input_filename = "merged.csv"):
         if u not in clean:
             clean.append(u)
     return clean
+#    #get data from source
+#    data = pd.read_csv(directory + input_filename, header=0)
+#    usernames = list(data['l_0_sis_user_id'].to_list())
+#    num_users = len(usernames) 
+#    print(f"Found {num_users} users in {input_filename}.\nPreparing to download data from {URL_LOGIN[0]}")
+#    
+#    #remove underscores
+#    clean = []
+#    for u in usernames:
+#        clean.append(str(u))
+#   
+#    return clean
+#    
+#    usernames = []
+#    clean = [u for u in clean if '_' in u]
+#    for u in clean:
+#        usernames.append(u.split('_')[1])
+#    
+#    clean = []
+#    for u in usernames:
+#        if u not in clean:
+#            clean.append(u)
+#    
+#    return clean
+#    return usernames
 
 def write_to_file(URL_to_use,sys_IDs, inp = input_filename, csv = output_filename, destination = directory):
+    
     inp = destination + inp
+    print(f"filename = {inp}, output = {directory}{output_filename}")
+    print(inp)
     os.system(f"echo \"[\" >> {inp}")
     num_users = len(sys_IDs) 
+    print(sys_IDs)
+
+    c = 0
     for n in sys_IDs:
+        print(f"index = {sys_IDs.index(n)}, count = {c}")
+        c+=1
         os.system(get_command(URL_to_use, n, inp))
         if n != sys_IDs[-1]:
             os.system(f"echo \",\" >> {inp}")    
@@ -110,7 +146,6 @@ def merge_IDs(directory = directory, file1 = 'collapsed.csv' ,file2 ='logins.csv
 
 def clean_csv(input_filename = 'with_ids.csv'):
     #put code to rename the columns of the file to make them readable for the end user
-    #create a new file and put it in the main directory, not the data/ directory
     final_filename = directory + "admins_final.csv"
     with open(directory + input_filename, 'r') as fin:
         data = fin.read().splitlines(True)
@@ -139,11 +174,11 @@ def collapse_csv(destination = directory, filename = "output.csv"):
                 break
     
     #remove empties
-    for i,x in enumerate(data):
-        for z in x:
-            if z == '':
-                x.remove(z)
-        data[i] = data[i][0:9]
+   # for i,x in enumerate(data):
+   #     for z in x:
+   #         if z == '':
+   #             x.remove(z)
+   #     data[i] = data[i][0:9]
     #data[0] = data[0][0:9]
 
     with open(directory+'collapsed.csv', 'w') as f:
@@ -237,14 +272,19 @@ def main():
     merge_csv(output_filename = "collapsed.csv")
     print("CSV file merged.")
   
-    usernames = get_usernames()
     #print(usernames)
    
 
     #get i-numbers from API
+    usernames = get_usernames()
+    print(usernames)
     print("Fetching IDs from API...")
     login_in = "logins.json"
     login_out = "logins.csv"
+    
+    #removes all "None" and  instances from usernames list
+    usernames = [u for u in usernames if u != "None"]
+    usernames = [u for u in usernames if u != "nan"]
     write_to_file(URL_LOGIN, usernames, inp = login_in, destination = first, csv = login_out)
     fix_json(input_filename = login_in ,output_filename = login_out)
     print("IDs fetched from API.")

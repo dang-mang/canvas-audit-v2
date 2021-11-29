@@ -19,9 +19,10 @@ def fix_json(input_filename='input.json', directory = "data/", storage_path = "d
 
 def remove_empty_lines(input_path, clean_path):
     char = '{'
+    exclude = '<'
     newfile = open(clean_path, 'w')
     for line in open(input_path, 'r'):
-        if char in line:
+        if char in line and exclude not in line:
             newfile.write(line)
     newfile.close()
 
